@@ -23,41 +23,50 @@
 
 | Requirement | Minimum |
 |-------------|---------|
-| iOS / iPadOS | 15.0+ |
-| Shortcuts app | Built-in (iOS 13+) |
+| iOS / iPadOS | 26.0+ |
+| Shortcuts app | Built-in |
 | Internet connection | Required |
 | Photos permission | Required (prompted on first use) |
+
+> **iOS 15–25 users**: See the [legacy installation note](#legacy-ios-15-25) below.
 
 ---
 
 ## Installation
 
-### Method 1 — Import the `.shortcut` File (Recommended)
+> **Important — iOS 26**: Apple removed the "Allow Untrusted Shortcuts" toggle in iOS 26.
+> Unsigned `.shortcut` files **cannot** be imported directly. You must use an **iCloud link**
+> (Method 1) or build from source and share via a signed iCloud link (Method 2).
 
-1. Download `Claude-InstaSaver.shortcut` from this repository to your iPhone/iPad.
-2. Open the **Files** app and locate the downloaded file.
-3. Tap the file — the **Shortcuts** app opens automatically.
-4. Tap **Add Shortcut** (or **Add Untrusted Shortcut** if prompted — see note below).
-5. Done! The shortcut appears in your Shortcuts library.
+### Method 1 — iCloud Link (Recommended)
 
-> **"Untrusted Shortcut" prompt**: Go to **Settings → Shortcuts** and enable
-> **Allow Untrusted Shortcuts** if prompted. This is normal for shortcuts not
-> distributed through the Shortcuts Gallery.
+1. Tap the iCloud installation link (provided in the [Releases](../../releases) section of this repo).
+2. Safari opens and displays **"Add Shortcut?"** — tap **Add Shortcut**.
+3. The shortcut appears instantly in your Shortcuts library under **My Shortcuts**.
 
-### Method 2 — AirDrop
+> If you see **"This shortcut cannot be opened"**, make sure you're on iOS 26.0 or later and
+> that the Shortcuts app is up to date in the App Store.
 
-1. On a Mac/iPhone that already has the file, AirDrop `Claude-InstaSaver.shortcut` to your device.
-2. Accept the incoming file — Shortcuts opens and prompts you to add it.
-3. Tap **Add Shortcut**.
+### Method 2 — Build from Source (Advanced)
 
-### Method 3 — Build Manually from Source
+Use this if you want to inspect or customise every action:
 
-If you want to inspect or customise every action before importing:
-
-1. Install Python 3.6+ on your Mac.
+1. Install Python 3.9+ on your Mac.
 2. Clone this repo and navigate to `shortcuts/instagram-video-saver/`.
 3. Run `python3 generate_shortcut.py` — this produces `Claude-InstaSaver.shortcut`.
-4. Transfer the file to your iPhone via AirDrop or iCloud Drive and follow Method 1.
+4. Open the **Shortcuts** app on your Mac (macOS 26 / Sequoia+).
+5. Drag `Claude-InstaSaver.shortcut` into the Shortcuts window to import it.
+6. Right-click the shortcut → **Share** → **Copy iCloud Link**.
+7. Open that iCloud link on your iPhone to install.
+
+### Legacy iOS 15–25
+
+On iOS 15–25 the "Allow Untrusted Shortcuts" toggle is available:
+
+1. Go to **Settings → Shortcuts → Allow Untrusted Shortcuts** and enable the toggle.
+2. Download `Claude-InstaSaver.shortcut` from this repo to your iPhone.
+3. Open the **Files** app, locate the file, and tap it — Shortcuts opens automatically.
+4. Tap **Add Untrusted Shortcut**.
 
 ---
 
@@ -67,17 +76,20 @@ If you want to inspect or customise every action before importing:
 
 1. Open the Instagram app and find the video you want to save.
 2. Tap the **⋯ (more)** button → **Share** → **Copy Link**.
-3. Open **Safari** and paste the link, or tap **Share** directly from Instagram.
-4. In the Share Sheet, scroll down and tap **Claude-InstaSaver**.
-5. The shortcut runs, downloads the video, and saves it to your Camera Roll.
-6. You'll receive a notification: **"✅ Instagram video saved to Photos!"**
+3. Tap the **Share** button (box with arrow) from anywhere that has the link.
+4. Scroll the Share Sheet and tap **Claude-InstaSaver**.
+5. The shortcut runs, downloads the video, and saves it to your Photos library.
+6. A banner notification confirms: **"✅ Instagram video saved to Photos!"**
+
+> **iOS 26 Share Sheet tip**: In iOS 26, the Share Sheet shows your most-used shortcuts at the
+> top. After your first use, Claude-InstaSaver will appear near the top automatically.
 
 ### Standalone (paste URL)
 
-1. Copy an Instagram video URL from anywhere (browser, messages, notes…).
-2. Open the **Shortcuts** app and tap **Claude-InstaSaver**.
+1. Copy an Instagram video URL from anywhere (browser, Messages, Notes…).
+2. Open the **Shortcuts** app and tap **Claude-InstaSaver** in the My Shortcuts tab.
 3. When prompted, paste the URL and tap **Done**.
-4. The video is saved to your Camera Roll.
+4. The video is saved to your Photos library.
 
 ### Supported URL Formats
 
@@ -101,23 +113,24 @@ Instagram's internal JSON endpoint returns post metadata including `video_url` f
 video posts. This requires no authentication and works for most public accounts.
 
 ### Method B — Fallback (sssinstagram.com)
-If Method A fails (private account visible to you, API change, network error), the shortcut
-falls back to a third-party extraction service. The original URL is URL-encoded and sent to
-the service's API; the response contains a direct download link.
+If Method A fails (private account, API change, network error), the shortcut falls back to a
+third-party extraction service. The original URL is URL-encoded and sent to the service's API;
+the response contains a direct download link.
 
 ### Download & Save
 Once a direct MP4 URL is obtained, the shortcut:
 1. Downloads the file using **Get Contents of URL** (native iOS networking).
-2. Saves the binary to the **Camera Roll** via **Save to Photo Album**.
-3. Displays a notification with the result.
+2. Saves the binary to the **Photos** library via **Save to Photo Album**.
+3. Displays a banner notification with the result.
 
 ---
 
 ## Troubleshooting
 
-### "Untrusted Shortcut" — cannot add
+### Cannot import — "Shortcut cannot be opened" (iOS 26)
 
-Go to **Settings → Shortcuts → Allow Untrusted Shortcuts** and enable the toggle, then try importing again.
+iOS 26 requires shortcuts to be installed via a signed **iCloud link**. Direct `.shortcut` file
+imports are no longer supported. Use Method 1 (iCloud link) from the Installation section above.
 
 ### "Invalid URL" error
 
@@ -136,15 +149,24 @@ This happens when both extraction methods fail. Common causes:
 | Post is a photo, not a video | Only video content can be saved |
 | Rate limited by Instagram | Wait 10–15 minutes and try again |
 
-### Video saves but won't play
+### Video saves but won't play in Photos
 
-The video file may have downloaded correctly but in an unsupported codec. Try playing it in
-the **Files** app or **VLC** instead of Photos.
+The file may be in a codec that the Photos app doesn't support on iOS 26. Try:
+- Tapping the video in Photos and waiting a moment for transcoding to complete
+- Opening it in the **Files** app or **VLC**
 
 ### Shortcut doesn't appear in Share Sheet
 
-Open **Shortcuts** app → Long-press **Claude-InstaSaver** → **Details** → enable
-**Show in Share Sheet**.
+1. Open the **Shortcuts** app.
+2. Long-press **Claude-InstaSaver** → tap **Details** (the info button).
+3. Enable **Show in Share Sheet**.
+4. If it still doesn't appear, go to **Settings → Privacy & Security → Shortcuts** and
+   confirm Shortcuts has permission to appear in the Share Sheet.
+
+### Photos permission denied
+
+Go to **Settings → Privacy & Security → Photos → Shortcuts** and set access to **Add Photos Only**
+or **Full Access**.
 
 ---
 
@@ -162,12 +184,12 @@ Open **Shortcuts** app → Long-press **Claude-InstaSaver** → **Details** → 
 
 ```
 shortcuts/instagram-video-saver/
-├── generate_shortcut.py      # Python script — generates the .shortcut binary
-├── Claude-InstaSaver.shortcut # Ready-to-import iOS Shortcut (binary plist)
-├── shortcut-source.json      # Human-readable JSON of the full workflow
-├── README.md                 # This file
-├── ISSUES.md                 # Known limitations & ToS notes
-└── LICENSE                   # MIT License
+├── generate_shortcut.py       # Python script — generates the .shortcut binary
+├── Claude-InstaSaver.shortcut # Shortcut file (must be installed via iCloud link on iOS 26)
+├── shortcut-source.json       # Human-readable JSON of the full workflow
+├── README.md                  # This file
+├── ISSUES.md                  # Known limitations & ToS notes
+└── LICENSE                    # MIT License
 ```
 
 ---
@@ -179,7 +201,7 @@ Bug reports and improvements are welcome via GitHub Issues.
 To modify the shortcut:
 1. Edit `generate_shortcut.py` (the workflow is defined in the `ACTIONS` list).
 2. Run `python3 generate_shortcut.py` to regenerate `Claude-InstaSaver.shortcut`.
-3. Test on a real iOS device.
+3. Import on a Mac (Shortcuts app), share as an iCloud link, and test on a real iOS 26 device.
 4. Submit a PR with both the updated script **and** the regenerated `.shortcut` file.
 
 ---
@@ -188,6 +210,7 @@ To modify the shortcut:
 
 | Version | Date | Notes |
 |---------|------|-------|
+| 1.1 | 2026-03 | iOS 26 support — iCloud link install, updated Share Sheet docs, legacy iOS note |
 | 1.0 | 2026-03 | Initial release — dual-method extraction, share sheet support, iOS 15+ |
 
 ---
